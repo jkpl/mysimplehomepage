@@ -1,0 +1,18 @@
+{
+  "sitedata":
+  {
+    "sitetitle": "jkpl",
+    "siteurl": "http://jkpl.lepovirta.org/",
+    "content": {}
+  },
+  "files":
+  {
+    "markdown":     [ "body.mdown", "footer.mdown" ],
+    "templates":    [ "index.jade" ],
+    "stylesheets":  [ "style.styl" ],
+    "plain":        []
+  },
+  "inputdir" : "in",
+  "outputdir": "out",
+  "testserverport": 3030
+}

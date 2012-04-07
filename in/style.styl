@@ -1,0 +1,80 @@
+bg_color = #eee
+fg_color = #888
+h_bg_color = #348
+h_fg_color = #fff
+h_border_color = h_bg_color
+c_bg_color = #fff
+c_fg_color = #444
+c_border_color = #ccc
+f_bg_color = bg_color
+f_fg_color = fg_color
+l_fg_color = #d16
+l_bg_color = transparent
+l_hover_bg_color = l_fg_color
+l_hover_fg_color = #fff
+area_width = 45em
+
+border-radius()
+  -webkit-border-radius arguments
+  -moz-border-radius arguments
+  border-radius arguments
+
+body
+  background-color bg_color
+  color fg_color
+
+a
+  color l_fg_color
+  background-color l_bg_color
+  text-decoration underline
+  &:hover
+    color l_hover_fg_color
+    background-color l_hover_bg_color
+
+.box
+  max-width area_width
+  position relative
+  margin auto
+
+.avatar
+  float right
+  border 2px solid h_bg_color
+  padding 0
+  border-radius 5px
+
+#title
+  margin 0
+  font-size xx-large
+  font-family sans-serif
+
+#titlea
+  color h_fg_color
+  text-decoration none
+  background-color transparent
+  &:hover
+    text-decoration underline
+
+#head
+  background-color h_bg_color
+  color h_fg_color
+  border-radius 0.8em 0.8em 0 0
+  padding 0.1em 2em 0.1em 2em
+  text-align right
+  margin 40px 0 0 0
+  border 2px solid h_border_color
+
+#content
+  background-color c_bg_color
+  color c_fg_color
+  margin 0
+  padding 0.5em 2em
+  border 1px solid c_border_color
+  border-radius 0 0 0.8em 0.8em
+  border-top 0
+
+#foot
+  background-color f_bg_color
+  color f_fg_color
+  padding 0.1em 2em 0.1em 2em
+  font-size medium
+  text-align right
