@@ -1,13 +1,14 @@
-<a href="img/jkpl.png"><img class="avatar" src="img/jkpl_s.png"></a>
+<img class="avatar" src="img/jkpl.png">
 
-## My name is Jaakko Pallari, and I...
+## My name is Jaakko Pallari, and...
 
-* study at the Mathematical Information Technology department at the [University of Jyväskylä][jyu].
-* have an account at [Github][] and [Bitbucket][].
-* enjoy both old and [new][sndcld] music.
-* have a [GnuPG][] key. [Here's my public key][gpgkey].
+* I currently study at the Mathematical Information Technology department at
+  the [University of Jyväskylä][jyu].
+* I have some stuff hosted at [Github][].
+* I enjoy both old and [new][sndcld] music.
+* here's my [GnuPG public key][gpgkey].
 
-## Contact
+## You can contact me via...
 
 * **email**: <jkpl@lepovirta.org>
 * **irc**: jkpl @ IRCnet, [freenode][] & [OFTC][]
@@ -15,8 +16,6 @@
 [jyu]: https://www.jyu.fi/
 [sndcld]: http://soundcloud.com/jkpl/following
 [github]: http://github.com/jkpl
-[bitbucket]: https://bitbucket.org/jkpl
-[gnupg]: http://gnupg.org/
-[gpgkey]: /files/pub-gpg.key
+[gpgkey]: files/pub-gpg.key
 [freenode]: http://freenode.net/
 [OFTC]: http://www.oftc.net/oftc/
