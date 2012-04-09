@@ -1,3 +1,5 @@
+'use strict'
+
 {exec} = require 'child_process'
 fs     = require 'fs'
 path   = require 'path'
@@ -7,7 +9,7 @@ md     = require('node-markdown').Markdown
 
 conffile = 'configuration.json'
 
-sitebuilder = ((conffilepath) ->
+sitebuilder = (conffilepath) ->
   sb = {}
   conf = JSON.parse(fs.readFileSync(conffilepath))
   allfiles = [].concat.apply([], (v for k, v of conf.files))
@@ -26,10 +28,9 @@ sitebuilder = ((conffilepath) ->
     outpath = path.join sb.outbasepath, outname
     content = sb.readContentFromFile fname
 
-    stylus(content).set('filename', outname)
-      .render (err, css) ->
-        throw err if err
-        fs.writeFileSync outpath, css
+    stylus(content).set('filename', outname).render (err, css) ->
+      throw err if err
+      fs.writeFileSync outpath, css
 
   sb.compileJade = (fname) ->
     outname = fname.replace /\.jade$/, '.html'
@@ -40,13 +41,14 @@ sitebuilder = ((conffilepath) ->
     html = jdfn conf.sitedata
     fs.writeFileSync outpath, html
 
-  sb.readContentFromFile = (fname) -> fs.readFileSync(path.join(sb.inbasepath, fname)).toString()
+  sb.readContentFromFile = (fname) ->
+    fs.readFileSync(path.join(sb.inbasepath, fname)).toString()
 
   sb.launchTestServer = () ->
     console.log 'launching test server on port', sb.testServerPort
     try
-      static = require 'node-static'
-      file = new(static.Server)(sb.outbasepath)
+      node_static = require 'node-static'
+      file = new(node_static.Server)(sb.outbasepath)
       server = require('http').createServer (req, res) ->
         req.addListener 'end', ->
           file.serve req, res
@@ -61,7 +63,8 @@ sitebuilder = ((conffilepath) ->
 
     console.log 'compiling content files...'
     conf.files.markdown.forEach (fname) -> sb.readFileToContent fname, md
-    conf.files.plain.forEach (fname) -> sb.readFileToContent fname, (data) -> data
+    conf.files.plain.forEach (fname) ->
+      sb.readFileToContent fname, (data) -> data
 
     console.log 'compiling templates...'
     conf.files.templates.forEach sb.compileJade
@@ -77,7 +80,6 @@ sitebuilder = ((conffilepath) ->
         sb.build()
 
   return sb
-)
 
 task 'build', 'compiles all the source files', ->
   sb = sitebuilder(conffile)
