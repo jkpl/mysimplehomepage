@@ -77,7 +77,11 @@ sitebuilder = (conffilepath) ->
     fs.watch sb.inbasepath, { persistent: true }, (event, fname) ->
       if event is 'change' and fname in allfiles
         console.log 'change found in', fname
-        sb.build()
+        try
+          sb.build()
+        catch error
+          console.log "** Error:"
+          console.log error.stack
 
   return sb
 
