@@ -1,4 +1,6 @@
 Cakefile.js
+mysimplehomepage.js
 out
 .bitpocket
+*.swp
 node_modules
