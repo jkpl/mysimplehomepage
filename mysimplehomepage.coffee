@@ -37,7 +37,7 @@ exports.sitebuilder = (conffilepath) ->
     if not path.existsSync dir then fs.mkdirSync dir
     fs.writeFileSync fpath, content
   copyfile = (fname, category) ->
-    outpath = path.join paths.outputdir, category, outname
+    outpath = path.join paths.outputdir, category, fname
     content = readfile path.join paths.staticfiles, fname
     writefile outpath, content
     [category, fname]
