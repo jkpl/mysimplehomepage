@@ -47,7 +47,7 @@ exports.sitebuilder = (conffilepath) ->
     outpath = path.join paths.outputdir, category, outname
     content = readfile path.join paths.staticfiles, fname
     callback outpath, content, outname
-    [category, fname]
+    [category, outname]
 
   # Compilers for static files
   sb.compilers =
