@@ -1,7 +1,8 @@
 !!! 5
 html
   head
-    link(rel='stylesheet', type='text/css', href='style.css')
+    for sheet in static.css
+      link(rel='stylesheet', type='text/css', href="#{sheet}")
     meta(content='text/html; charset=UTF-8', http-equiv='Content-Type')
     title= sitetitle
   body
@@ -10,6 +11,6 @@ html
         h1#title
           a#titlea(href="#{siteurl}")= sitetitle
       section#content!= content.body
-      section#foot
-        p!= content.footer
-      //script(type='text/javascript', src='http://code.jquery.com/jquery-1.7.2.min.js')
+      if static.js
+        for js in static.js
+          script(type='text/javascript', src="#{js}")

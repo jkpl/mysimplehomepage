@@ -2,17 +2,26 @@
   "sitedata":
   {
     "sitetitle": "jkpl",
-    "siteurl": "http://jkpl.lepovirta.org/",
-    "content": {}
+    "siteurl": "http://jkpl.lepovirta.org/"
   },
-  "files":
+  "pages":
+  [
+    {
+      "file": "index.mdown",
+      "template": "default",
+      "outfilepath": "index.html",
+      "pagedata":
+      {
+        "subtitle": ""
+      }
+    }
+  ],
+  "paths":
   {
-    "markdown":     [ "body.mdown", "footer.mdown" ],
-    "templates":    [ "index.jade" ],
-    "stylesheets":  [ "style.styl" ],
-    "plain":        []
+    "staticfiles": "static",
+    "pagesdir": "pages",
+    "templatesdir": "templates",
+    "outputdir": "out"
   },
-  "inputdir" : "in",
-  "outputdir": "out",
   "testserverport": 3030
 }
