@@ -16,16 +16,35 @@ modules (you can install them with [npm][]).
 
 ## So here's how it works...
 
-In the `configuration.json` file, list all the files you want to use for
-generating your site in the subobject `files`, and place the files to the input
-directory (default `in/`). The `sitedata` object will be passed to each
-template, so you can define your own template variables there.
+First, place all your Markdown files in the `pages` directory. These files will
+be used for generating the content of the site. Place all your templates in the
+`templates` directory and Stylus stylesheets to `static` directory. You can
+customize these paths in the `configuraton.json` file, if you like. You should
+have atleast one template and one Markdown file for this to work.
 
-The files listed in `markdown` will be rendered to HTML, and placed to
-`sitedata.content` object. For example, a Markdown file named `mycontent.md`
-can be found from `sitedata.content.mycontent` after compilation. The files
-listed in `plain` will be handled just like the Markdown files, except that
-there is no rendering process.
+In the `configuration.json` file, you can specify details for each page in the
+`pages` object. Here's an example:
+``
+  "pages":
+  [
+    {
+      "file": "index.mdown",
+      "template": "default",
+      "outfilepath": "index.html",
+      "pagedata":
+      {
+        "subtitle": "Index page"
+      }
+    }
+  ],
+``
+Here we have a pages list with one page. It uses the index.mdown file in the
+pages directory for content, default.jade template in the templates directory
+and outputs the a file named index.html to the output directory. You can also
+add your own metadata for each page in the `pagedata` object. This object is
+passed to the template as object named `content`. The rendered Markdown itself
+can be found from `content.body`. The `sitedata` object in the configuration
+file is passed to each template in each page.
 
 Once the `configuration.json` has been configured, and the files are in place
 run the Cakefile's `build` task to build your site. The generated files will be
@@ -42,19 +61,24 @@ serves files from the output directory. The default port for the test server is 
 
 You can change any of the configurations in the `configuration.json` file.
 
-* **sitedata**: all the variables that are passed to the templates
-* **files**: files used for generating the site
-    * **markdown**: Markdown files
-    * **templates**: Jade files
-    * **stylesheets**: Stylus files
-    * **plain**: HTML or plain text files
-* **inputdir**: the directory where the files are located
-* **outputdir**: the directory where the generated files will be placed
+* **sitedata**: site wide data
+* **pages**: list of all the pages
+  * **file**: filename for the Markdown file
+  * **template**: template used for the page
+  * **outfilepath**: the file name for the output file
+  * **pagedata**: page wide data
+* **paths**
+  * **staticfiles**: directory for static files such as Stylus stylesheets and
+      JavaScripts files.
+  * **pagesdir**: directory for the Markdown files
+  * **templatesdir**: directory for the Jade templates
+  * **outputdir**: the directory where all the generated files are placed to
 * **testserverport**: the port for the test web server
 
 # TODO
 
 * A support for generating Javascript files from CoffeeScript files.
+* Some support for twitter-bootstrap
 
 [homepage]: http://jkpl.lepovirta.org/
 [nodejs]: http://nodejs.org/
