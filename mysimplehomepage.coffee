@@ -1,4 +1,4 @@
-{exec} = require 'child_process'
+{spawn} = require 'child_process'
 fs     = require 'fs'
 path   = require 'path'
 jade   = require 'jade'
@@ -32,20 +32,42 @@ exports.sitebuilder = (conffilepath) ->
 
   # Helper functions
   readfile = (fpath) -> fs.readFileSync(fpath).toString()
+  writefile = (fpath) ->
+    dir = path.dirname fpath
+    if not path.existsSync dir then fs.mkdirSync dir
+    fs.writeFileSync fpath
+  copyfile = (fname, category) ->
+    outpath = path.join paths.outputdir, category, outname
+    content = readfile path.join paths.staticfiles, fname
+    writefile outpath, content
+    [category, fname]
+  staticfile = (fname, from, to, category, callback) ->
+    re = new RegExp "\\.#{from}$"
+    outname = fname.replace re, ".#{to}"
+    outpath = path.join paths.outputdir, category, outname
+    content = readfile path.join paths.staticfiles, fname
+    callback outpath, content, outname
+    [category, fname]
 
   # Compilers for static files
-  compilers.styl = (fname) ->
-    outname = fname.replace /\.styl/, '.css'
-    outpath = path.join paths.outputdir, 'css', outname
-    content = readfile path.join paths.staticfiles, fname
-
-    stylus(content).set('filename', outname).render (err, css) ->
-      throw err if err
-      if not path.existsSync path.join paths.outputdir, 'css'
-        fs.mkdirSync path.join paths.outputdir, 'css'
-      fs.writeFileSync outpath, css
-
-    ['css', outname]
+  compilers =
+    styl: (fname) ->
+      staticfile fname, 'styl', 'css', 'css', (outpath, content, outname) ->
+        stylus(content).set('filename', outname).render (err, css) ->
+          throw err if err
+          writefile outpath, css
+    css: (fname) -> copyfile fname, 'css'
+    js: (fname) -> copyfile fname, 'js'
+    coffee: (fname) ->
+      staticfile fname, 'coffee', 'js', 'js', (outpath, content, outname) ->
+        dir = path.dirname outpath
+        if not path.existsSync dir then fs.mkdirSync dir
+        ws = fs.createWriteStream outpath
+        ps = spawn 'coffee', ['-sc']
+        ps.stdout.pipe ws
+        ps.stderr.on 'data', (d) -> console.log d.toString()
+        ps.stdin.write content
+        ps.stdin.end()
 
   # Compiles a single static file
   compileStaticfile = (fname) ->
@@ -97,7 +119,7 @@ exports.sitebuilder = (conffilepath) ->
     sitedata.content.body = md(readfile fullpath)
 
     html = tmpl sitedata
-    fs.writeFileSync outpath, html
+    writefile outpath, html
 
   # Compiles all the pages
   compileAllPages = (staticfiles, templates) ->
