@@ -32,10 +32,10 @@ exports.sitebuilder = (conffilepath) ->
 
   # Helper functions
   readfile = (fpath) -> fs.readFileSync(fpath).toString()
-  writefile = (fpath) ->
+  writefile = (fpath, content) ->
     dir = path.dirname fpath
     if not path.existsSync dir then fs.mkdirSync dir
-    fs.writeFileSync fpath
+    fs.writeFileSync fpath, content
   copyfile = (fname, category) ->
     outpath = path.join paths.outputdir, category, outname
     content = readfile path.join paths.staticfiles, fname
@@ -50,16 +50,24 @@ exports.sitebuilder = (conffilepath) ->
     [category, fname]
 
   # Compilers for static files
-  compilers =
-    styl: (fname) ->
-      staticfile fname, 'styl', 'css', 'css', (outpath, content, outname) ->
+  sb.compilers =
+    styl:
+      to: 'css'
+      category: 'css'
+      callback: (outpath, content, outname) ->
         stylus(content).set('filename', outname).render (err, css) ->
           throw err if err
           writefile outpath, css
-    css: (fname) -> copyfile fname, 'css'
-    js: (fname) -> copyfile fname, 'js'
-    coffee: (fname) ->
-      staticfile fname, 'coffee', 'js', 'js', (outpath, content, outname) ->
+    css:
+      copy: true
+      category: 'css'
+    js:
+      copy: true
+      category: 'js'
+    coffee:
+      to: 'js'
+      category: 'js'
+      callback: (outpath, content) ->
         dir = path.dirname outpath
         if not path.existsSync dir then fs.mkdirSync dir
         ws = fs.createWriteStream outpath
@@ -72,8 +80,12 @@ exports.sitebuilder = (conffilepath) ->
   # Compiles a single static file
   compileStaticfile = (fname) ->
     ext = (path.extname fname).slice(1)
-    if ext of compilers
-      compilers[ext](fname)
+    if ext of sb.compilers
+      c = sb.compilers[ext]
+      if c.copy
+        copyfile fname, c.category
+      else
+        staticfile fname, ext, c.to, c.category, c.callback
     else
       null
 
