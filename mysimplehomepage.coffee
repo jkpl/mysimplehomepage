@@ -36,17 +36,18 @@ exports.sitebuilder = (conffilepath) ->
     dir = path.dirname fpath
     if not path.existsSync dir then fs.mkdirSync dir
     fs.writeFileSync fpath, content
-  copyfile = (fname, category) ->
-    outpath = path.join paths.outputdir, category, fname
-    content = readfile path.join paths.staticfiles, fname
-    writefile outpath, content
-    [category, fname]
-  staticfile = (fname, from, to, category, callback) ->
-    re = new RegExp "\\.#{from}$"
-    outname = fname.replace re, ".#{to}"
+  compilefile = (fname, category, from, to, callback) ->
+    if from and to
+      re = new RegExp "\\.#{from}$"
+      outname = fname.replace re, ".#{to}"
+    else
+      outname = fname
     outpath = path.join paths.outputdir, category, outname
     content = readfile path.join paths.staticfiles, fname
-    callback outpath, content, outname
+    if callback
+      callback outpath, content, outname
+    else
+      writefile outpath, content
     [category, outname]
 
   # Compilers for static files
@@ -83,9 +84,9 @@ exports.sitebuilder = (conffilepath) ->
     if ext of sb.compilers
       c = sb.compilers[ext]
       if c.copy
-        copyfile fname, c.category
+        compilefile fname, c.category
       else
-        staticfile fname, ext, c.to, c.category, c.callback
+        compilefile fname, c.category, ext, c.to, c.callback
     else
       null
 
@@ -99,7 +100,7 @@ exports.sitebuilder = (conffilepath) ->
         category = result[0]
         p = result[1]
         if not obj[category] then obj[category] = []
-        obj[category].push('/' + category + '/' + p)
+        obj[category].push "/#{category}/#{p}"
     obj
 
   # Compiles one Jade templating function from file
@@ -179,5 +180,6 @@ exports.sitebuilder = (conffilepath) ->
             console.log "** Error:"
             console.log error.stack
 
-  return sb
+  # Return the final object
+  sb
 

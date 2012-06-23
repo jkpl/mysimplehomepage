@@ -77,8 +77,9 @@ You can change any of the configurations in the `configuration.json` file.
 
 # TODO
 
-* A support for generating Javascript files from CoffeeScript files.
 * Some support for twitter-bootstrap
+* Generate URLs and pass them to templates
+* Maybe some kind of blogging platform
 
 [homepage]: http://jkpl.lepovirta.org/
 [nodejs]: http://nodejs.org/
