@@ -9,7 +9,6 @@
     {
       "file": "index.mdown",
       "template": "default",
-      "outfilepath": "index.html",
       "pagedata":
       {
         "subtitle": ""

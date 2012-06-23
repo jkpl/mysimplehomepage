@@ -5,70 +5,40 @@ jade   = require 'jade'
 stylus = require 'stylus'
 md     = require('node-markdown').Markdown
 
-# Object cloning
+# Helper functions
 clone = (obj) ->
   return obj if obj is null or typeof (obj) isnt "object"
   temp = obj.constructor()
   for key of obj
     temp[key] = clone obj[key]
   temp
+readfile = (fpath) -> fs.readFileSync(fpath).toString()
+writefile = (fpath, content) ->
+  dir = path.dirname fpath
+  if not path.existsSync dir then fs.mkdirSync dir
+  fs.writeFileSync fpath, content
 
 exports.sitebuilder = (conffilepath) ->
   sb = {}
   compilers = {}
   conf = JSON.parse(fs.readFileSync(conffilepath))
-
-  # Paths
-  paths = do ->
-    obj = {}
-    for k of conf.paths
-      obj[k] = path.resolve path.join '.', conf.paths[k]
-    obj
-  sb.pathList = (paths[k] for k of paths)
   sb.watchDirs = do ->
-    dirs = (paths[k] for k of paths when k isnt 'outputdir')
+    dirs = (conf.paths[k] for k of conf.paths when k isnt 'outputdir')
     dirs.push '.'
     dirs
-
-  # Helper functions
-  readfile = (fpath) -> fs.readFileSync(fpath).toString()
-  writefile = (fpath, content) ->
-    dir = path.dirname fpath
-    if not path.existsSync dir then fs.mkdirSync dir
-    fs.writeFileSync fpath, content
-  compilefile = (fname, category, from, to, callback) ->
-    if from and to
-      re = new RegExp "\\.#{from}$"
-      outname = fname.replace re, ".#{to}"
-    else
-      outname = fname
-    outpath = path.join paths.outputdir, category, outname
-    content = readfile path.join paths.staticfiles, fname
-    if callback
-      callback outpath, content, outname
-    else
-      writefile outpath, content
-    [category, outname]
 
   # Compilers for static files
   sb.compilers =
     styl:
       to: 'css'
-      category: 'css'
-      callback: (outpath, content, outname) ->
+      compiler: (outpath, content) ->
+        outname = path.basename outpath
         stylus(content).set('filename', outname).render (err, css) ->
           throw err if err
           writefile outpath, css
-    css:
-      copy: true
-      category: 'css'
-    js:
-      copy: true
-      category: 'js'
     coffee:
       to: 'js'
-      category: 'js'
-      callback: (outpath, content) ->
+      compiler: (outpath, content) ->
         dir = path.dirname outpath
         if not path.existsSync dir then fs.mkdirSync dir
         ws = fs.createWriteStream outpath
@@ -78,73 +48,77 @@ exports.sitebuilder = (conffilepath) ->
         ps.stdin.write content
         ps.stdin.end()
 
-  # Compiles a single static file
-  compileStaticfile = (fname) ->
-    ext = (path.extname fname).slice(1)
-    if ext of sb.compilers
-      c = sb.compilers[ext]
-      if c.copy
-        compilefile fname, c.category
+  # Processes a directory recursively and executes 'callback' for each found file.
+  processDirectory = (dir, callback) ->
+    files = fs.readdirSync dir
+    dirs = []
+    for file in files
+      fpath = path.join dir, file
+      stats = fs.statSync fpath
+      if stats.isDirectory()
+        dirs.push file
       else
-        compilefile fname, c.category, ext, c.to, c.callback
-    else
-      null
+        callback fpath
+    if dirs.length
+      processDirectory path.join(dir, d), callback for d in dirs
 
-  # Compile all the static files, and returns the relative paths to them
-  compileAllStaticfiles = ->
+  # Compiles all the static files
+  compileStaticfiles = ->
     obj = {}
-    staticfiles = fs.readdirSync paths.staticfiles
-    for fname in staticfiles
-      result = compileStaticfile fname
-      if result
-        category = result[0]
-        p = result[1]
-        if not obj[category] then obj[category] = []
-        obj[category].push "/#{category}/#{p}"
+    processDirectory conf.paths.staticfiles, (fpath) ->
+      relativepath = path.relative conf.paths.staticfiles, fpath
+      ext = (path.extname fpath).slice(1)
+      content = readfile fpath
+      if ext of sb.compilers
+        c = sb.compilers[ext]
+        re = new RegExp "\\.#{ext}$"
+        outname = relativepath.replace re, ".#{c.to}"
+        outpath = path.join conf.paths.outputdir, outname
+        c.compiler outpath, content
+        if not obj[c.to] then obj[c.to] = []
+        obj[c.to].push "/#{outname}"
+      else
+        outpath = path.join conf.paths.outputdir, relativepath
+        writefile outpath, content
+        if not obj[ext] then obj[ext] = []
+        obj[ext].push "/#{relativepath}"
     obj
-
-  # Compiles one Jade templating function from file
-  compileTemplate = (fname) ->
-    content = readfile fname
-    jade.compile content
 
   # Compiles Jade templating functions
-  compileAllTemplates = ->
+  compileTemplates = ->
     obj = {}
-    templatefiles = fs.readdirSync paths.templatesdir
-    for fname in templatefiles
-      fullpath = path.join paths.templatesdir, fname
-      ext = path.extname fname
-      if ext is '.jade'
-        idname = path.basename fname, '.jade'
-        obj[idname] = compileTemplate fullpath
+    processDirectory conf.paths.templatesdir, (fpath) ->
+      relativepath = path.relative conf.paths.staticfiles, fpath
+      ext = (path.extname fpath).slice(1)
+      if ext is 'jade'
+        idname = path.basename fpath, '.jade'
+        content = readfile fpath
+        obj[idname] = jade.compile content
     obj
-
-  # Compiles a single page
-  compilePage = (page, staticfiles, templates) ->
-    fullpath = path.join paths.pagesdir, page.file
-    tmpl = templates[page.template]
-    outpath = path.join paths.outputdir, page.outfilepath
-
-    sitedata = clone conf.sitedata
-    sitedata.content = page.pagedata
-    sitedata.static = staticfiles
-    sitedata.content.body = md(readfile fullpath)
-
-    html = tmpl sitedata
-    writefile outpath, html
 
   # Compiles all the pages
   compileAllPages = (staticfiles, templates) ->
-    compilePage page, staticfiles, templates for page in conf.pages
-    null
+    for page in conf.pages
+      fullpath = path.join conf.paths.pagesdir, page.file
+      if path.existsSync fullpath
+        tmpl = templates[page.template]
+        ext = (path.extname page.file).slice(1)
+        re = new RegExp "\\.#{ext}$"
+        outname = page.file.replace re, ".html"
+        outpath = path.join conf.paths.outputdir, outname
+        sitedata = clone conf.sitedata
+        sitedata.content = page.pagedata
+        sitedata.static = staticfiles
+        sitedata.content.body = md readfile fullpath
+        html = tmpl sitedata
+        writefile outpath, html
 
   # Launches a test server
   sb.launchTestServer = ->
     console.log 'launching test server on port', conf.testserverport
     try
       node_static = require 'node-static'
-      file = new(node_static.Server)(paths.outputdir)
+      file = new(node_static.Server)(conf.paths.outputdir)
       server = require('http').createServer (req, res) ->
         req.addListener 'end', ->
           file.serve req, res
@@ -154,15 +128,15 @@ exports.sitebuilder = (conffilepath) ->
 
   # The actual builder function
   sb.build = ->
-    if not path.existsSync paths.outputdir
+    if not path.existsSync conf.paths.outputdir
       console.log 'output dir not found. creating...'
-      fs.mkdirSync paths.outputdir
+      fs.mkdirSync conf.paths.outputdir
 
     console.log 'compiling static files...'
-    staticfiles = compileAllStaticfiles()
+    staticfiles = compileStaticfiles()
 
     console.log 'compiling templates...'
-    templates = compileAllTemplates()
+    templates = compileTemplates()
 
     console.log 'compiling pages..'
     compileAllPages staticfiles, templates
