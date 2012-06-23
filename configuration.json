@@ -1,18 +1,17 @@
 {
   "sitedata":
   {
-    "sitetitle": "jkpl",
-    "siteurl": "http://jkpl.lepovirta.org/"
+    "title": "jkpl",
+    "url": "http://jkpl.lepovirta.org/"
   },
   "pages":
   [
     {
+      "id": "index",
       "file": "index.mdown",
       "template": "default",
-      "pagedata":
-      {
-        "subtitle": ""
-      }
+      "title": "Home",
+      "pagedata": {}
     }
   ],
   "paths":

@@ -98,18 +98,29 @@ exports.sitebuilder = (conffilepath) ->
 
   # Compiles all the pages
   compileAllPages = (staticfiles, templates) ->
+    urls = {}
+    for page in conf.pages
+      urls[page.id] =
+        url: do ->
+          ext = (path.extname page.file).slice(1)
+          re = new RegExp "\\.#{ext}$"
+          outname = page.file.replace re, ".html"
+          "/#{outname}"
+        title: page.title
     for page in conf.pages
       fullpath = path.join conf.paths.pagesdir, page.file
       if path.existsSync fullpath
         tmpl = templates[page.template]
-        ext = (path.extname page.file).slice(1)
-        re = new RegExp "\\.#{ext}$"
-        outname = page.file.replace re, ".html"
-        outpath = path.join conf.paths.outputdir, outname
-        sitedata = clone conf.sitedata
-        sitedata.content = page.pagedata
+        outpath = path.join conf.paths.outputdir, urls[page.id].url
+        sitedata = {}
+        sitedata.site = conf.sitedata
+        sitedata.urls = urls
         sitedata.static = staticfiles
-        sitedata.content.body = md readfile fullpath
+        sitedata.page =
+          id: page.id
+          title: page.title
+          body: md readfile fullpath
+          data: page.pagedata
         html = tmpl sitedata
         writefile outpath, html
 
