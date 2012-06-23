@@ -28,21 +28,21 @@ output directory, so you can, for example, place all your stylesheets in
 
 In the `configuration.json` file, you can specify details for each page in the
 `pages` object. Here's an example:
-``
-  "pages":
-  [
+```json
+"pages":
+[
+  {
+    "id": "index",
+    "file": "index.mdown",
+    "template": "default",
+    "title": "Home",
+    "pagedata":
     {
-      "id": "index",
-      "file": "index.mdown",
-      "template": "default",
-      "title": "Home",
-      "pagedata":
-      {
-        "mydata": "This data is page specific"
-      }
+      "mydata": "This data is page specific"
     }
-  ],
-``
+  }
+],
+```
 Here we have a pages list with one page. It uses the index.mdown file in the
 pages directory for content and default.jade template in the templates
 directory. You can also add your own metadata for each page in the `pagedata`
