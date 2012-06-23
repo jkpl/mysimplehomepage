@@ -26,37 +26,30 @@ structure in `pages` and `static` directories will remain the same in the
 output directory, so you can, for example, place all your stylesheets in
 `static/css/` and they will appear in `out/css/`.
 
-In the `configuration.json` file, you can specify details for each page in the
-`pages` object. Here's an example:
-```json
-"pages":
-[
-  {
-    "id": "index",
-    "file": "index.mdown",
-    "template": "default",
-    "title": "Home",
-    "pagedata":
-    {
-      "mydata": "This data is page specific"
-    }
-  }
-],
+Each Markdown file should be in this kind of format:
 ```
-Here we have a pages list with one page. It uses the index.mdown file in the
-pages directory for content and default.jade template in the templates
-directory. You can also add your own metadata for each page in the `pagedata`
-object. Each template will receive these objects:
+"id": "index",
+"title": "Home",
+"template": "default",
+"mydata": "Some data I'd like to use in this specific page."
+
+---
+# Here is the actual Markdown portion
+...
+```
+The `---` line acts as a separator for the page metadata and the page
+body. Everything before the separator is interpreted as a JSON object, and the
+rest is interpreted as Markdown. You can add pretty much any JSON data you
+want, but just be sure you have atleast specified an ID for the page. If you
+don't specify a template, the template named `default` is used. The JSON object
+is passed to the template engine when the page is rendered. Here's a full list
+of what you have access to in the templates:
 
 * **site**: site wide data (`sitedata` in the configuration file)
-* **urls**: all the URLs to site pages:
-  * **url**: the page URL
-  * **title**: the page title
-* **page**: page specific data
+* **allpages**: all the pages with their metadata and body intact
+* **page**: the data from the Markdown file
   * **id**: the ID for the page
-  * **title**: the page title
   * **body**: the page contents
-  * **data**: additional page data (`pagedata` in the page object)
 * **static**: all the static files
 
 Once the `configuration.json` has been configured, and the files are in place
@@ -76,12 +69,6 @@ serves files from the output directory. The default port for the test server is
 You can change any of the configurations in the `configuration.json` file.
 
 * **sitedata**: site wide data
-* **pages**: list of all the pages
-  * **id**: page ID. The URLs object uses these for its object keys.
-  * **file**: filename for the Markdown file
-  * **template**: template used for the page
-  * **title**: the title for the page
-  * **pagedata**: page wide data
 * **paths**
   * **staticfiles**: directory for static files such as Stylus stylesheets and
       JavaScript files.

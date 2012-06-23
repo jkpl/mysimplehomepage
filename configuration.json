@@ -4,16 +4,6 @@
     "title": "jkpl",
     "url": "http://jkpl.lepovirta.org/"
   },
-  "pages":
-  [
-    {
-      "id": "index",
-      "file": "index.mdown",
-      "template": "default",
-      "title": "Home",
-      "pagedata": {}
-    }
-  ],
   "paths":
   {
     "staticfiles": "static",

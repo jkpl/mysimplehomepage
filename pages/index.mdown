@@ -1,3 +1,7 @@
+"id": "index",
+"title": "Home",
+
+---
 <img class="avatar" src="img/jkpl.png">
 
 ## My name is Jaakko Pallari, and...

@@ -19,16 +19,16 @@ writefile = (fpath, content) ->
   fs.writeFileSync fpath, content
 
 exports.sitebuilder = (conffilepath) ->
-  sb = {}
+  that = {}
   compilers = {}
   conf = JSON.parse(fs.readFileSync(conffilepath))
-  sb.watchDirs = do ->
+  that.watchDirs = do ->
     dirs = (conf.paths[k] for k of conf.paths when k isnt 'outputdir')
     dirs.push '.'
     dirs
 
   # Compilers for static files
-  sb.compilers =
+  that.compilers =
     styl:
       to: 'css'
       compiler: (outpath, content) ->
@@ -54,10 +54,10 @@ exports.sitebuilder = (conffilepath) ->
     dirs = []
     for file in files
       fpath = path.join dir, file
-      stats = fs.statSync fpath
+      stats = fs.lstatSync fpath
       if stats.isDirectory()
         dirs.push file
-      else
+      else if not stats.isSymbolicLink()
         callback fpath
     if dirs.length
       processDirectory path.join(dir, d), callback for d in dirs
@@ -67,12 +67,11 @@ exports.sitebuilder = (conffilepath) ->
     obj = {}
     processDirectory conf.paths.staticfiles, (fpath) ->
       relativepath = path.relative conf.paths.staticfiles, fpath
-      ext = (path.extname fpath).slice(1)
+      ext = path.extname fpath
       content = readfile fpath
-      if ext of sb.compilers
-        c = sb.compilers[ext]
-        re = new RegExp "\\.#{ext}$"
-        outname = relativepath.replace re, ".#{c.to}"
+      if ext.slice(1) of that.compilers
+        c = that.compilers[ext.slice(1)]
+        outname = path.basename(relativepath, ext) + ".#{c.to}"
         outpath = path.join conf.paths.outputdir, outname
         c.compiler outpath, content
         if not obj[c.to] then obj[c.to] = []
@@ -98,34 +97,36 @@ exports.sitebuilder = (conffilepath) ->
 
   # Compiles all the pages
   compileAllPages = (staticfiles, templates) ->
-    urls = {}
-    for page in conf.pages
-      urls[page.id] =
-        url: do ->
-          ext = (path.extname page.file).slice(1)
-          re = new RegExp "\\.#{ext}$"
-          outname = page.file.replace re, ".html"
-          "/#{outname}"
-        title: page.title
-    for page in conf.pages
-      fullpath = path.join conf.paths.pagesdir, page.file
-      if path.existsSync fullpath
-        tmpl = templates[page.template]
-        outpath = path.join conf.paths.outputdir, urls[page.id].url
-        sitedata = {}
-        sitedata.site = conf.sitedata
-        sitedata.urls = urls
-        sitedata.static = staticfiles
-        sitedata.page =
-          id: page.id
-          title: page.title
-          body: md readfile fullpath
-          data: page.pagedata
-        html = tmpl sitedata
-        writefile outpath, html
+    pages = {}
+    processDirectory conf.paths.pagesdir, (fpath) ->
+      page = parsePage fpath
+      if page then pages[page.id] = page
+    for k of pages
+      page = pages[k]
+      tmpl = templates[page.template]
+      outpath = path.join conf.paths.outputdir, page.url
+      sitedata =
+        site: conf.sitedata
+        allpages: pages
+        page: page
+        static: staticfiles
+      html = tmpl sitedata
+      writefile outpath, html
+
+  # Parses a page from a single file
+  parsePage = (fpath) ->
+    file = readfile(fpath).split('\n---\n')
+    if file.length < 2 then return null
+    page = JSON.parse "{#{file[0]}}"
+    page.body = md file.slice(1).join('\n')
+    ext = path.extname fpath
+    relativepath = path.relative conf.paths.pages, fpath
+    page.url = "/" + path.basename(relativepath, ext) + ".html"
+    if not page.template then page.template = "default"
+    page
 
   # Launches a test server
-  sb.launchTestServer = ->
+  that.launchTestServer = ->
     console.log 'launching test server on port', conf.testserverport
     try
       node_static = require 'node-static'
@@ -138,7 +139,7 @@ exports.sitebuilder = (conffilepath) ->
       console.log "Couldn't launch test server:", error.message
 
   # The actual builder function
-  sb.build = ->
+  that.build = ->
     if not path.existsSync conf.paths.outputdir
       console.log 'output dir not found. creating...'
       fs.mkdirSync conf.paths.outputdir
@@ -153,18 +154,18 @@ exports.sitebuilder = (conffilepath) ->
     compileAllPages staticfiles, templates
 
   # Watch directories for changes
-  sb.watch = () ->
+  that.watch = () ->
     console.log 'watching files for changes...'
-    for p in sb.watchDirs
+    for p in that.watchDirs
       fs.watch p, { persistent: true }, (event, fname) ->
         if event is 'change'
           console.log 'change found in', fname
           try
-            sb.build()
+            that.build()
           catch error
             console.log "** Error:"
             console.log error.stack
 
   # Return the final object
-  sb
+  that
 
