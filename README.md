@@ -94,6 +94,7 @@ You can change any of the configurations in the `configuration.json` file.
 
 * Some support for twitter-bootstrap
 * Maybe some kind of blogging platform
+* Add [docco][] documentation.
 
 [homepage]: http://jkpl.lepovirta.org/
 [nodejs]: http://nodejs.org/
@@ -103,3 +104,4 @@ You can change any of the configurations in the `configuration.json` file.
 [stylus]: https://github.com/learnboost/stylus
 [node-markdown]: https://github.com/andris9/node-markdown
 [node-static]: https://github.com/cloudhead/node-static
+[docco]: http://jashkenas.github.com/docco/
