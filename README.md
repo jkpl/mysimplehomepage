@@ -18,9 +18,13 @@ modules (you can install them with [npm][]).
 
 First, place all your Markdown files in the `pages` directory. These files will
 be used for generating the content of the site. Place all your templates in the
-`templates` directory and Stylus stylesheets to `static` directory. You can
-customize these paths in the `configuraton.json` file, if you like. You should
-have atleast one template and one Markdown file for this to work.
+`templates` directory. All the Stylus stylesheets and CoffeeScript and
+JavaScript files should be places to the `static` directory. You can customize
+these paths in the `configuraton.json` file, if you like. You should have
+atleast one template and one Markdown file for this to work. The directory
+structure in `pages` and `static` directories will remain the same in the
+output directory, so you can, for example, place all your stylesheets in
+`static/css/` and they will appear in `out/css/`.
 
 In the `configuration.json` file, you can specify details for each page in the
 `pages` object. Here's an example:
@@ -30,7 +34,6 @@ In the `configuration.json` file, you can specify details for each page in the
     {
       "file": "index.mdown",
       "template": "default",
-      "outfilepath": "index.html",
       "pagedata":
       {
         "subtitle": "Index page"
@@ -39,12 +42,11 @@ In the `configuration.json` file, you can specify details for each page in the
   ],
 ``
 Here we have a pages list with one page. It uses the index.mdown file in the
-pages directory for content, default.jade template in the templates directory
-and outputs the a file named index.html to the output directory. You can also
-add your own metadata for each page in the `pagedata` object. This object is
-passed to the template as object named `content`. The rendered Markdown itself
-can be found from `content.body`. The `sitedata` object in the configuration
-file is passed to each template in each page.
+pages directory for content and default.jade template in the templates
+directory. You can also add your own metadata for each page in the `pagedata`
+object. This object is passed to the template as object named `content`. The
+rendered Markdown itself can be found from `content.body`. The `sitedata`
+object in the configuration file is passed to each template in each page.
 
 Once the `configuration.json` has been configured, and the files are in place
 run the Cakefile's `build` task to build your site. The generated files will be
@@ -65,7 +67,6 @@ You can change any of the configurations in the `configuration.json` file.
 * **pages**: list of all the pages
   * **file**: filename for the Markdown file
   * **template**: template used for the page
-  * **outfilepath**: the file name for the output file
   * **pagedata**: page wide data
 * **paths**
   * **staticfiles**: directory for static files such as Stylus stylesheets and
