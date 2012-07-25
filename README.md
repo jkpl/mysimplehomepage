@@ -27,16 +27,17 @@ output directory, so you can, for example, place all your stylesheets in
 `static/css/` and they will appear in `out/css/`.
 
 Each Markdown file should be in this kind of format:
-```
-"id": "index",
-"title": "Home",
-"template": "default",
-"mydata": "Some data I'd like to use in this specific page."
 
----
-# Here is the actual Markdown portion
-...
-```
+    "id": "index",
+    "title": "Home",
+    "template": "default",
+    "mydata": "Some data I'd like to use in this specific page."
+    
+    ---
+    # Here is the actual Markdown portion
+    
+    ...
+    
 The `---` line acts as a separator for the page metadata and the page
 body. Everything before the separator is interpreted as a JSON object, and the
 rest is interpreted as Markdown. You can add pretty much any JSON data you
@@ -77,11 +78,31 @@ You can change any of the configurations in the `configuration.json` file.
   * **outputdir**: the directory where all the generated files are placed to
 * **testserverport**: the port for the test web server
 
-# TODO
 
-* Some support for twitter-bootstrap
-* Maybe some kind of blogging platform
-* Add [docco][] documentation.
+## License
+
+Copyright (c) 2012, Jaakko Pallari
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 [homepage]: http://jkpl.lepovirta.org/
 [nodejs]: http://nodejs.org/
@@ -92,3 +113,4 @@ You can change any of the configurations in the `configuration.json` file.
 [node-markdown]: https://github.com/andris9/node-markdown
 [node-static]: https://github.com/cloudhead/node-static
 [docco]: http://jashkenas.github.com/docco/
+[highlight]: https://github.com/andris9/highlight
