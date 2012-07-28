@@ -12,6 +12,10 @@
 * I enjoy both old and [new][sndcld] music.
 * here's my [GnuPG public key][gpgkey].
 
+## Here's some stuff I've made
+
+* A [keyboard layout][altfin] I use.
+
 ## You can contact me via...
 
 * **email**: <jkpl@lepovirta.org>
@@ -23,3 +27,4 @@
 [gpgkey]: files/pub-gpg.key
 [freenode]: http://freenode.net/
 [OFTC]: http://www.oftc.net/oftc/
+[altfin]: altfin
