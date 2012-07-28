@@ -1,5 +1,5 @@
 "id": "index",
-"title": "Home",
+"title": ""
 
 ---
 <img class="avatar" src="img/jkpl.png">

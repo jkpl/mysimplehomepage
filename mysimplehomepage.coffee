@@ -12,18 +12,46 @@ clone = (obj) ->
   for key of obj
     temp[key] = clone obj[key]
   temp
+
 readfile = (fpath) -> fs.readFileSync(fpath).toString()
+
 writefile = (fpath, content) ->
   dir = path.dirname fpath
   if not path.existsSync dir then fs.mkdirSync dir
   fs.writeFileSync fpath, content
+
+processRecursive = (dir, callback) ->
+  files = fs.readdirSync dir
+  dirs = []
+  for file in files
+    fpath = path.join dir, file
+    try
+      stats = fs.lstatSync fpath
+      if stats.isDirectory()
+        dirs.push file
+      callback fpath, stats
+    catch err
+      console.log err
+  if dirs.length
+    processRecursive path.join(dir, d), callback for d in dirs
+
+processFiles = (dir, callback) ->
+  processRecursive dir, (fpath, stats) ->
+    if not stats.isSymbolicLink() and not stats.isDirectory()
+      callback fpath
 
 exports.sitebuilder = (conffilepath) ->
   that = {}
   compilers = {}
   conf = JSON.parse(fs.readFileSync(conffilepath))
   that.watchDirs = do ->
-    dirs = (conf.paths[k] for k of conf.paths when k isnt 'outputdir')
+    dirs = []
+    processDir = (path) ->
+      dirs.push path
+      processRecursive path, (fpath, stats) ->
+        if stats.isDirectory()
+          dirs.push fpath
+    processDir v for k, v of conf.paths when k isnt 'outputdir'
     dirs.push '.'
     dirs
 
@@ -48,24 +76,10 @@ exports.sitebuilder = (conffilepath) ->
         ps.stdin.write content
         ps.stdin.end()
 
-  # Processes a directory recursively and executes 'callback' for each found file.
-  processDirectory = (dir, callback) ->
-    files = fs.readdirSync dir
-    dirs = []
-    for file in files
-      fpath = path.join dir, file
-      stats = fs.lstatSync fpath
-      if stats.isDirectory()
-        dirs.push file
-      else if not stats.isSymbolicLink()
-        callback fpath
-    if dirs.length
-      processDirectory path.join(dir, d), callback for d in dirs
-
   # Compiles all the static files
   compileStaticfiles = ->
     obj = {}
-    processDirectory conf.paths.staticfiles, (fpath) ->
+    processFiles conf.paths.staticfiles, (fpath) ->
       relativepath = path.relative conf.paths.staticfiles, fpath
       ext = path.extname fpath
       content = readfile fpath
@@ -86,7 +100,7 @@ exports.sitebuilder = (conffilepath) ->
   # Compiles Jade templating functions
   compileTemplates = ->
     obj = {}
-    processDirectory conf.paths.templatesdir, (fpath) ->
+    processFiles conf.paths.templatesdir, (fpath) ->
       relativepath = path.relative conf.paths.staticfiles, fpath
       ext = (path.extname fpath).slice(1)
       if ext is 'jade'
@@ -98,7 +112,7 @@ exports.sitebuilder = (conffilepath) ->
   # Compiles all the pages
   compileAllPages = (staticfiles, templates) ->
     pages = {}
-    processDirectory conf.paths.pagesdir, (fpath) ->
+    processFiles conf.paths.pagesdir, (fpath) ->
       page = parsePage fpath
       if page then pages[page.id] = page
     for k of pages
@@ -168,4 +182,3 @@ exports.sitebuilder = (conffilepath) ->
 
   # Return the final object
   that
-
