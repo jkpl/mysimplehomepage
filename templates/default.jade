@@ -4,12 +4,18 @@ html
     each sheet in static.css
       link(rel='stylesheet', type='text/css', href="#{sheet}")
     meta(content='text/html; charset=UTF-8', http-equiv='Content-Type')
-    title= site.title
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    - if (page.title == '')
+      title= site.title
+    - else
+      title #{site.title} &raquo; #{page.title}
   body
     .box
       section#head
         h1#title
           a#titlea(href="#{site.url}")= site.title
+          unless (page.title == '')
+            &nbsp;&raquo; #{page.title}
       section#content!= page.body
       if static.js
         for js in static.js

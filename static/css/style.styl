@@ -8,7 +8,7 @@ c_fg_color = #444
 c_border_color = #ccc
 f_bg_color = bg_color
 f_fg_color = fg_color
-l_fg_color = #d16
+l_fg_color = #d14
 l_bg_color = transparent
 l_hover_bg_color = l_fg_color
 l_hover_fg_color = #fff
@@ -19,9 +19,24 @@ border-radius()
   -moz-border-radius arguments
   border-radius arguments
 
+box-shadow()
+  -moz-box-shadow arguments
+  -webkit-box-shadow arguments
+  box-shadow arguments
+
+@media (min-width: 481px)
+  .box
+    max-width area_width
+    position relative
+    margin 10px auto
+
 body
   background-color bg_color
   color fg_color
+
+@media (max-width: 481px)
+  body
+    margin 0
 
 a
   color l_fg_color
@@ -31,16 +46,15 @@ a
     color l_hover_fg_color
     background-color l_hover_bg_color
 
-.box
-  max-width area_width
-  position relative
-  margin auto
-
 .avatar
   float right
   border 2px solid h_bg_color
   padding 0
   border-radius 5px
+
+@media (max-width: 480px)
+  .avatar
+    display none
 
 #title
   margin 0
@@ -56,21 +70,30 @@ a
 
 #head
   background-color h_bg_color
+  linear-gradient h_bg_color h_bg_color
   color h_fg_color
-  border-radius 0.8em 0.8em 0 0
-  padding 0.1em 2em 0.1em 2em
+  padding 0.3em 2em 0.3em 2em
   text-align right
-  margin 40px 0 0 0
-  border 2px solid h_border_color
+  margin 0
+
+@media (min-width: 481px)
+  #head
+    border-radius 0.8em 0.8em 0 0
 
 #content
   background-color c_bg_color
   color c_fg_color
   margin 0
-  padding 0.5em 2em
   border 1px solid c_border_color
-  border-radius 0 0 0.8em 0.8em
   border-top 0
+
+@media (max-width: 480px)
+  #content
+    padding: 0.5em
+@media (min-width: 481px)
+  #content
+    padding 0.5em 2em
+    border-radius 0 0 0.8em 0.8em
 
 #foot
   background-color f_bg_color
