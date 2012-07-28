@@ -56,10 +56,10 @@ recommend trying it, if you use a desktop environment like GNOME, KDE, XFCE or
 LXDE. Many of the desktop environments provide tools for switching between
 different keyboard layouts which might not work that well with custom layouts.
 
-I personally prefer the second solution, because it doesn't use Xmodmap.
-Xmodmap is a hack created for modifying layout which is why it should be
-avoided. If you are interested in tuning your keyboard mappings via XKB,
-check out [this guide][xkb].
+I personally prefer the second solution, because it doesn't involve Xmodmap.
+Xmodmap is kind of a hack, and it might not give the results you'd hope for.
+If you are interested in tuning your keyboard mappings via XKB, check out
+[madduck's guide][xkb].
 
 Anyhow, here are the two guides for AltFin on Linux:
 
@@ -73,8 +73,9 @@ International variant. There are several ways to switch the layout:
 * via command line using setxkbmap: `setxkbmap us -variant altgr-intl`
 
 If you use Ubuntu or any other Debian based distribution, you can change the
-layout system wide using this command: `sudo dpkg-reconfigure
-keyboard-configuration`
+layout system wide using the correct `dpkg-reconfigure` command:
+
+    sudo dpkg-reconfigure keyboard-configuration
 
 To map the extra key, put the following line to your .Xmodmap file in your home
 directory, and make sure you run the command `xmodmap ~/.Xmodmap` everytime you
@@ -87,15 +88,21 @@ you can't produce capitalized **ä** or **ö** by pressing right alt + (shift +)
 the extra key. However, you can still access those letters by pressing right
 alt + shift + q and right alt + shift + p.
 
+If you change the keyboard layout or you somehow lose the xmodmap mappings,
+just run `xmodmap ~/.Xmodmap` manually.
+
 ### 2. Custom XKB layout
 
 By following [madduck's guide][xkb], I created my own XKB rules.
 
 1. Download this archive: [altfin.tar.gz](files/altfin.tar.gz)
 2. Unpack the archive to your home directory.
-3. Place the `loadaltfin` any place you want and make it executable (`chmod +x
-   /path/to/loadaltfin`)
+3. Place the `loadaltfin` any place you want and make it executable
+   `chmod +x /path/to/loadaltfin`
 4. Make sure you run `loadaltfin` every time you login.
+
+If you change the keyboard layout or it somehow resets to some other layout,
+just run the `loadaltfin` executable again.
 
 [usintl]: http://en.wikipedia.org/wiki/Keyboard_layout#US-International
 [arkku]: http://www.cs.helsinki.fi/u/kkuloves/dvorak.shtml

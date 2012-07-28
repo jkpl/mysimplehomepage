@@ -12,6 +12,9 @@ l_fg_color = #d14
 l_bg_color = transparent
 l_hover_bg_color = l_fg_color
 l_hover_fg_color = #fff
+code_bg = #e5e5e5
+code_border = #d0d0d0
+code_block_border = #35a
 area_width = 45em
 
 border-radius()
@@ -37,6 +40,21 @@ body
 @media (max-width: 481px)
   body
     margin 0
+
+pre
+  margin 1em 1em
+  padding 0.2em 0.2em
+  border-left 4px solid code_block_border
+
+code
+  background-color code_bg
+  border 1px solid code_border
+  border-radius 2px
+  padding 0 0.4em
+
+pre code
+  background-color transparent
+  border 0px solid code_border
 
 a
   color l_fg_color
@@ -81,6 +99,7 @@ a
     border-radius 0.8em 0.8em 0 0
 
 #content
+  font-size 1.1em
   background-color c_bg_color
   color c_fg_color
   margin 0
