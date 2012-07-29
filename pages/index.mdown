@@ -1,5 +1,5 @@
-"id": "index",
-"title": ""
+id: index
+title: ""
 
 ---
 <img class="avatar" src="img/jkpl.png">

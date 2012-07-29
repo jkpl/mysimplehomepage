@@ -1,5 +1,5 @@
-"id": "altfin",
-"title": "altfin"
+id: altfin
+title: altfin
 
 ---
 AltFin is a variant of the [US International][usintl] keyboard layout.

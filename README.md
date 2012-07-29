@@ -35,10 +35,12 @@ output directory, so you can, for example, place all your stylesheets in
 
 Each Markdown file should be in this kind of format:
 
-    "id": "index",
-    "title": "Home",
-    "template": "default",
-    "mydata": "Some data I'd like to use in this specific page."
+    id: index
+    title: Home
+    template: default
+    mydata: Some data I'd like to use
+      in this specific page. This one reaches
+      to multiple lines.
     
     ---
     # Here is the actual Markdown portion
@@ -46,12 +48,22 @@ Each Markdown file should be in this kind of format:
     ...
     
 The `---` line acts as a separator for the page metadata and the page
-body. Everything before the separator is interpreted as a JSON object, and the
-rest is interpreted as Markdown. You can add pretty much any JSON data you
-want, but just be sure you have atleast specified an ID for the page. If you
-don't specify a template, the template named `default` is used. The JSON object
-is passed to the template engine when the page is rendered. Here's a full list
-of what you have access to in the templates:
+body. Everything before the separator is interpreted in the program's
+configuration parser, and the rest is interpreted as Markdown.
+
+The string in the beginning of line till character `:` is interpreted as a
+key. The string following the `:` character is interpreted as its value. If you
+want your values in multiple lines, start the next line with two spaces. The
+parser first tries to interpret the accumulated value as a JSON value, and then
+as a string value if that fails.
+
+You can write pretty much any data to your page configurations but be sure to
+have atleast an `id` for each page. If you don't specify a `template`, the
+template named `default` is used.
+
+Once the configuration has been parsed, the configurations are passed to the
+template engine as a JavaScript object when the page is rendered. Here's a full
+list of what you have access to in the templates:;
 
 * **site**: site wide data (`sitedata` in the configuration file)
 * **allpages**: all the pages with their metadata and body intact

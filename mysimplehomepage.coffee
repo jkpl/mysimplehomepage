@@ -51,14 +51,12 @@ processDirectories = (dir, callback) ->
     if stats.isDirectory()
       callback fpath
 
-parseConfig = (configstr) ->
-  JSON.parse "{" + configstr + "}"
-
 # The site builder
 exports.sitebuilder = (conffilepath) ->
   that = {}
   compilers = {}
   conf = JSON.parse(fs.readFileSync(conffilepath))
+  pageConfigParser = configParser()
   that.watchDirs = do ->
     dirs = ['.']
     processDir = (path) ->
@@ -143,7 +141,7 @@ exports.sitebuilder = (conffilepath) ->
   parsePage = (fpath) ->
     file = readfile(fpath).split('\n---\n')
     if file.length < 2 then return null
-    page = parseConfig file[0]
+    page = pageConfigParser file[0]
     page.body = md file.slice(1).join('\n')
     ext = path.extname fpath
     relativepath = path.relative conf.paths.pages, fpath
@@ -194,3 +192,64 @@ exports.sitebuilder = (conffilepath) ->
 
   # Return the final object
   that
+
+# Custom config parser
+configParser = ->
+
+  # buffer management
+  makeBuffer = ->
+    that = {}
+    that.id = null
+    that.buffer = null
+
+    that.init = (newid, val) ->
+      that.id = newid
+      if val isnt undefined
+        that.buffer = [val]
+      else
+        that.buffer = []
+
+    that.append = (val) ->
+      that.buffer.push val
+
+    that
+
+  # key-value parser
+  kvparser = (configstr, callback) ->
+    buf = makeBuffer()
+
+    newkey = (match) ->
+      if buf.id and buf.buffer.length > 0
+        callback buf.id, buf.buffer
+      buf.init match[1], match[2]
+
+    appendline = (match) -> buf.append match[1]
+
+    processline = (line) ->
+      m = line.match /(\w+)\s*:(.*)$/
+      if m then newkey m
+      else
+        m = line.match /[ ]{2}(.*)$/
+        if m then appendline m
+
+    processline line for line in configstr.split '\n'
+    callback buf.id, buf.buffer
+
+  # value parsers
+  valueParser = (buffer) ->
+    if buffer.length is 0 then return undefined
+    bufstr = buffer.join('\n').trim()
+    try
+      return JSON.parse bufstr
+    catch err
+      return bufstr
+
+  # config parser
+  parseConfig = (configstr) ->
+    config = {}
+    kvparser configstr, (id, buffer) ->
+      if config[id] is undefined
+        config[id] = valueParser buffer
+    config
+
+exports.configParser = configParser
