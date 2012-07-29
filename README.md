@@ -12,11 +12,18 @@ modules (you can install them with [npm][]).
 * [jade][], for generating templates
 * [stylus][], for generating stylesheets
 * [node-markdown][], for generating content from Markdown files
+* [mkdirp][], for creating a bunch of directories
 * [node-static][], for running a test server (optional)
 
 ## So here's how it works...
 
-First, place all your Markdown files in the `pages` directory. These files will
+If you haven't installed the modules above, install them first. You can either
+install them individually with command `npm install` or by running the
+`installdeps.sh` script:
+
+    ./installdeps.sh
+
+Place all your Markdown files in the `pages` directory. These files will
 be used for generating the content of the site. Place all your templates in the
 `templates` directory. All the Stylus stylesheets and CoffeeScript and
 JavaScript files should be places to the `static` directory. You can customize

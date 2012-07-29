@@ -4,6 +4,7 @@ path   = require 'path'
 jade   = require 'jade'
 stylus = require 'stylus'
 md     = require('node-markdown').Markdown
+mkdirp = require 'mkdirp'
 
 # Helper functions
 clone = (obj) ->
@@ -17,10 +18,12 @@ readfile = (fpath) -> fs.readFileSync(fpath).toString()
 
 writefile = (fpath, content) ->
   dir = path.dirname fpath
-  if not path.existsSync dir then fs.mkdirSync dir
+  if not path.existsSync dir then mkdirp.sync dir
   fs.writeFileSync fpath, content
 
-processRecursive = (dir, callback) ->
+# Traverse a directory recursively, calling `callback` for each found file. The
+# callback receives the file path and file stats as a parameter.
+traverseDirRecursive = (dir, callback) ->
   files = fs.readdirSync dir
   dirs = []
   for file in files
@@ -33,26 +36,35 @@ processRecursive = (dir, callback) ->
     catch err
       console.log err
   if dirs.length
-    processRecursive path.join(dir, d), callback for d in dirs
+    traverseDirRecursive path.join(dir, d), callback for d in dirs
 
+# Calls `callback` for each file (not symbolic links or directories) in
+# provided directory.
 processFiles = (dir, callback) ->
-  processRecursive dir, (fpath, stats) ->
+  traverseDirRecursive dir, (fpath, stats) ->
     if not stats.isSymbolicLink() and not stats.isDirectory()
       callback fpath
 
+# Calls `callback` for each directory in provided directory.
+processDirectories = (dir, callback) ->
+  traverseDirRecursive dir, (fpath, stats) ->
+    if stats.isDirectory()
+      callback fpath
+
+parseConfig = (configstr) ->
+  JSON.parse "{" + configstr + "}"
+
+# The site builder
 exports.sitebuilder = (conffilepath) ->
   that = {}
   compilers = {}
   conf = JSON.parse(fs.readFileSync(conffilepath))
   that.watchDirs = do ->
-    dirs = []
+    dirs = ['.']
     processDir = (path) ->
       dirs.push path
-      processRecursive path, (fpath, stats) ->
-        if stats.isDirectory()
-          dirs.push fpath
+      processDirectories path, (fpath) -> dirs.push fpath
     processDir v for k, v of conf.paths when k isnt 'outputdir'
-    dirs.push '.'
     dirs
 
   # Compilers for static files
@@ -68,7 +80,7 @@ exports.sitebuilder = (conffilepath) ->
       to: 'js'
       compiler: (outpath, content) ->
         dir = path.dirname outpath
-        if not path.existsSync dir then fs.mkdirSync dir
+        if not path.existsSync dir then mkdirp.sync dir
         ws = fs.createWriteStream outpath
         ps = spawn 'coffee', ['-sc']
         ps.stdout.pipe ws
@@ -131,7 +143,7 @@ exports.sitebuilder = (conffilepath) ->
   parsePage = (fpath) ->
     file = readfile(fpath).split('\n---\n')
     if file.length < 2 then return null
-    page = JSON.parse "{#{file[0]}}"
+    page = parseConfig file[0]
     page.body = md file.slice(1).join('\n')
     ext = path.extname fpath
     relativepath = path.relative conf.paths.pages, fpath
@@ -156,7 +168,7 @@ exports.sitebuilder = (conffilepath) ->
   that.build = ->
     if not path.existsSync conf.paths.outputdir
       console.log 'output dir not found. creating...'
-      fs.mkdirSync conf.paths.outputdir
+      mkdir.sync conf.paths.outputdir
 
     console.log 'compiling static files...'
     staticfiles = compileStaticfiles()
