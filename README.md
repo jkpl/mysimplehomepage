@@ -133,5 +133,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 [stylus]: https://github.com/learnboost/stylus
 [node-markdown]: https://github.com/andris9/node-markdown
 [node-static]: https://github.com/cloudhead/node-static
-[docco]: http://jashkenas.github.com/docco/
+[mkdirp]: https://github.com/substack/node-mkdirp/
 [highlight]: https://github.com/andris9/highlight
