@@ -81,6 +81,8 @@ You can change any of the configurations in the `configuration.json` file.
 
 ## License
 
+(2-clause BSD license)
+
 Copyright (c) 2012, Jaakko Pallari
 All rights reserved.
 

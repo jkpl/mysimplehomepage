@@ -99,12 +99,15 @@ a
     border-radius 0.8em 0.8em 0 0
 
 #content
-  font-size 1.1em
   background-color c_bg_color
   color c_fg_color
   margin 0
   border 1px solid c_border_color
   border-top 0
+
+@media (min-width: 481px)
+  #content
+    font-size 1.1em
 
 @media (max-width: 480px)
   #content
