@@ -1,7 +1,7 @@
 # mysimplehomepage
 
 This is a really, really simple static website generator I made using various
-Node.JS modules. I use this to generate my [homepage][].
+Node.JS modules. I use it to generate my [homepage][].
 
 ## Requirements
 
@@ -12,7 +12,7 @@ For rolling out your own website, you need to have [Node.JS][nodejs] and
 * [node-markdown][], for generating content from Markdown files
 * [mkdirp][], for creating a bunch of directories
 
-mysimplehomepage can also use these modules if they are available:
+mysimplehomepage can also use these modules, if they are available:
 
 * [stylus][], for compiling Stylus stylesheets into CSS
 * [coffee-script][], for compiling CoffeeScript scripts
@@ -21,9 +21,10 @@ mysimplehomepage can also use these modules if they are available:
 ## How do install the damn thing?
 
 1. Make sure you have [Node.JS][nodejs] and [npm][] installed.
-2. Clone this git repo.
+2. Clone this git repo, and go to the directory.
 
         git clone git://github.com/jkpl/mysimplehomepage.git mysimplehomepage
+        cd mysimplehomepage
 
 3. If you haven't installed the modules listed above, install them now. You can
    either install them individually with command `npm install` or by running
