@@ -5,15 +5,18 @@ Node.JS modules. I use this to generate my [homepage][].
 
 ## Requirements
 
-For generating your own website, you need [Node.JS][nodejs] and the following
-modules (you can install them with [npm][]).
+For rolling out your own website, you need to have [Node.JS][nodejs] and
+[npm][] installed. Also, the following packages need to installed locally:
 
-* [coffee-script][], for running the Cakefile
 * [jade][], for generating templates
-* [stylus][], for generating stylesheets
 * [node-markdown][], for generating content from Markdown files
 * [mkdirp][], for creating a bunch of directories
-* [node-static][], for running a test server (optional)
+
+mysimplehomepage can also use these modules if they are available:
+
+* [stylus][], for compiling Stylus stylesheets into CSS
+* [coffee-script][], for compiling CoffeeScript scripts
+* [node-static][], for running a test server
 
 ## So here's how it works...
 
@@ -41,12 +44,12 @@ Each Markdown file should be in this kind of format:
     mydata: Some data I'd like to use
       in this specific page. This one reaches
       to multiple lines.
-    
+
     ---
     # Here is the actual Markdown portion
-    
+
     ...
-    
+
 The `---` line acts as a separator for the page metadata and the page
 body. Everything before the separator is interpreted in the program's
 configuration parser, and the rest is interpreted as Markdown.
@@ -73,16 +76,15 @@ list of what you have access to in the templates:;
 * **static**: all the static files
 
 Once the `configuration.json` has been configured, and the files are in place
-run the Cakefile's `build` task to build your site. The generated files will be
-placed to the output directory (default: `out/`).  If you want to use files
+run `./mysimplehomepage.js build` to build your site. The generated files will
+be placed to the output directory (default: `out/`). If you want to use files
 like images with your site, just place them to the output directory.
 
-There's also a feature built in the Cakefile for monitoring changes in the
-source files. If you run the Cakefile task `watch`, the program will
-automatically generate the site after you change any of the source files. If
-you have `node-static` installed, the program will launch a web server that
-serves files from the output directory. The default port for the test server is
-3030.
+There's also a feature built in for monitoring changes in the source files. If
+you run the `./mysimplehomepage.js watch`, the program will automatically
+generate the site after you change any of the source files. If you have
+`node-static` installed, the program will launch a web server that serves files
+from the output directory. The default port for the test server is 3030.
 
 ## Configuration
 
