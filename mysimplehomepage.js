@@ -2,17 +2,16 @@
 
 var conffile = 'configuration.json';
 
+// Modules
 var spawn = require('child_process').spawn,
     fs = require('fs'),
     path = require('path'),
     jade = require('jade'),
     md = require('node-markdown').Markdown,
     mkdirp = require('mkdirp'),
-    Server, stylus, http;
+    Server, http, compilers = {};
 
-try {
-  stylus = require('stylus');
-} catch (err) {}
+// Optional modules
 try {
   http = require('http');
   Server = require('node-static').Server;
@@ -41,7 +40,6 @@ var writefile = function(fpath, content) {
     mkdirp.sync(dir);
   fs.writeFileSync(fpath, content);
 };
-
 
 // Change file extension
 var changeFileExtension = function(fpath, to_ext) {
@@ -89,11 +87,10 @@ var processDirectories = function(dir, callback) {
   });
 };
 
-
-// Run it!
+// The main function of the script
 var run = function(args) {
   if (args.length < 2) return null;
-  var mybuilder = sitebuilder(conffile);
+  var mybuilder = sitebuilder(conffile, compilers);
   var printHelp = function() {
     var cmd = path.relative('.', args[1]);
     console.log([
@@ -122,13 +119,13 @@ var run = function(args) {
 };
 
 // The site builder
-var sitebuilder = function(conffilepath) {
-  var that = {},
-      compilers = {},
+var sitebuilder = function(conffilepath, compilers) {
+  var that = {compilers: compilers},
       conf = JSON.parse(fs.readFileSync(conffilepath)),
       pageConfigParser = configParser(),
       compileAllPages, compileStaticfiles, compileTemplates, parsePage;
 
+  // Watch these directories for changes.
   that.watchDirs = (function() {
     var dirs = ['.'];
     each(conf.paths, function(key, val) {
@@ -142,45 +139,17 @@ var sitebuilder = function(conffilepath) {
     return dirs;
   })();
 
-  that.compilers = {};
-  if (stylus) {
-    that.compilers.styl = {
-      to: 'css',
-      compiler: function(outpath, content) {
-        var outname = path.basename(outpath);
-        stylus(content).set('filename', outname).render(function(err, css) {
-          if (err) throw err;
-          writefile(outpath, css);
-        });
-      }
-    };
-  }
-  that.compilers.coffee = {
-    to: 'js',
-    compiler: function(outpath, content) {
-      var ps, ws, dir = path.dirname(outpath);
-      if (!path.existsSync(dir))
-        mkdirp.sync(dir);
-      ws = fs.createWriteStream(outpath);
-      ps = spawn('coffee', ['-sc']);
-      ps.stdout.pipe(ws);
-      ps.stderr.on('data', function(d) {
-        console.log(d.toString());
-      });
-      ps.stdin.write(content);
-      ps.stdin.end();
-    }
-  };
-
+  // Static file compiler: compiles all the static files or copies them to the
+  // output directory.
   compileStaticfiles = function() {
     var obj = {};
     processFiles(conf.paths.staticfiles, function(fpath) {
       var relativepath = path.relative(conf.paths.staticfiles, fpath),
-          ext = path.extname(fpath),
+          ext = path.extname(fpath).slice(1),
           content = readfile(fpath),
-          c, outname, outpath;
-      if (that.compilers.hasOwnProperty(ext.slice(1))) { // a compiler exists
-        c = that.compilers[ext.slice(1)];
+          c = compilers[ext],
+          compiler, outname, outpath;
+      if (typeof c !== 'undefined') { // a compiler exists
         outname = changeFileExtension(relativepath, c.to);
         outpath = path.join(conf.paths.outputdir, outname);
         c.compiler(outpath, content);
@@ -198,6 +167,7 @@ var sitebuilder = function(conffilepath) {
     return obj;
   };
 
+  // Template compiler: compiles all the Jade templates.
   compileTemplates = function() {
     var obj = {};
     processFiles(conf.paths.templatesdir, function(fpath) {
@@ -213,6 +183,7 @@ var sitebuilder = function(conffilepath) {
     return obj;
   };
 
+  // Page compiler: compiles all the pages in pages directory.
   compileAllPages = function(staticfiles, templates) {
     var pages = {};
     processFiles(conf.paths.pagesdir, function(fpath) {
@@ -232,6 +203,8 @@ var sitebuilder = function(conffilepath) {
     });
   };
 
+  // Page parser: parses a Markdown file for configurations and Markdown
+  // content
   parsePage = function(fpath) {
     var ext, page, relativepath,
         file = readfile(fpath).split('\n---\n');
@@ -246,6 +219,7 @@ var sitebuilder = function(conffilepath) {
     return page;
   };
 
+  // Launches a test server.
   that.launchTestServer = function() {
     var fileserver, server;
     console.log('launching test server on port', conf.testserverport);
@@ -262,6 +236,7 @@ var sitebuilder = function(conffilepath) {
     }
   };
 
+  // Builds the whole project
   that.build = function() {
     var staticfiles, templates;
     if (!path.existsSync(conf.paths.outputdir)) {
@@ -279,6 +254,8 @@ var sitebuilder = function(conffilepath) {
     compileAllPages(staticfiles, templates);
   };
 
+  // Watches the watch directories for changes, and compiles the whole project
+  // when changes are found.
   that.watch = function() {
     var p;
     console.log('watching files for changes...');
@@ -299,6 +276,35 @@ var sitebuilder = function(conffilepath) {
   return that;
 };
 
+// Static file compilers
+try {
+  stylus = require('stylus');
+  compilers.styl = {
+    to: 'css',
+    compiler: function(outpath, content) {
+      var outname = path.basename(outpath);
+      stylus(content).set('filename', outname).render(function(err, css) {
+        if (err) throw err;
+        writefile(outpath, css);
+      });
+    }
+  };
+} catch (err) {}
+try {
+  coffee = require('coffee-script');
+  compilers.coffee = {
+    to: 'js',
+    compiler: function(outpath, content) {
+      var output, dir = path.dirname(outpath);
+      if (!path.existsSync(dir))
+        mkdirp.sync(dir);
+      output = coffee.compile(content);
+      writefile(outpath, output);
+    }
+  };
+} catch (err) {}
+
+// A custom configuration parser
 var configParser = function() {
   var kvparser, makeBuffer, parseConfig, valueParser;
 
@@ -370,4 +376,5 @@ var configParser = function() {
   };
 };
 
+// run it!
 run(process.argv);
