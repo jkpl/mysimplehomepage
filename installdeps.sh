@@ -2,7 +2,6 @@
 
 DEPENDENCIES=(
     'jade'
-    'coffee-script'
     'stylus'
     'coffee-script'
     'mkdirp'

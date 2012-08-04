@@ -18,13 +18,27 @@ mysimplehomepage can also use these modules if they are available:
 * [coffee-script][], for compiling CoffeeScript scripts
 * [node-static][], for running a test server
 
+## How do install the damn thing?
+
+1. Make sure you have [Node.JS][nodejs] and [npm][] installed.
+2. Clone this git repo.
+
+        git clone git://github.com/jkpl/mysimplehomepage.git mysimplehomepage
+
+3. If you haven't installed the modules listed above, install them now. You can
+   either install them individually with command `npm install` or by running
+   `installdeps.sh` script:
+
+        npm install jade node-markdown mkdirp stylus coffee-script node-static
+
+        OR
+
+        ./installdeps.sh
+
+4. Once you have customized your site (see the section below), run
+   `./mysimplehomepage.js build` to build the site.
+
 ## So here's how it works...
-
-If you haven't installed the modules above, install them first. You can either
-install them individually with command `npm install` or by running the
-`installdeps.sh` script:
-
-    ./installdeps.sh
 
 Place all your Markdown files in the `pages` directory. These files will
 be used for generating the content of the site. Place all your templates in the
