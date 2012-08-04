@@ -152,7 +152,9 @@ var sitebuilder = function(conffilepath, compilers) {
       if (typeof c !== 'undefined') { // a compiler exists
         outname = changeFileExtension(relativepath, c.to);
         outpath = path.join(conf.paths.outputdir, outname);
-        c.compiler(outpath, content);
+        c.compiler(content, function(output) {
+          writefile(outpath, output);
+        });
         if (!obj[c.to])
           obj[c.to] = [];
         obj[c.to].push("/" + outname);
@@ -278,28 +280,23 @@ var sitebuilder = function(conffilepath, compilers) {
 
 // Static file compilers
 try {
-  stylus = require('stylus');
+  var stylus = require('stylus');
   compilers.styl = {
     to: 'css',
-    compiler: function(outpath, content) {
-      var outname = path.basename(outpath);
-      stylus(content).set('filename', outname).render(function(err, css) {
+    compiler: function(content, callback) {
+      stylus(content).render(function(err, css) {
         if (err) throw err;
-        writefile(outpath, css);
+        callback(css);
       });
     }
   };
 } catch (err) {}
 try {
-  coffee = require('coffee-script');
+  var coffee = require('coffee-script');
   compilers.coffee = {
     to: 'js',
-    compiler: function(outpath, content) {
-      var output, dir = path.dirname(outpath);
-      if (!path.existsSync(dir))
-        mkdirp.sync(dir);
-      output = coffee.compile(content);
-      writefile(outpath, output);
+    compiler: function(content, callback) {
+      callback(coffee.compile(content));
     }
   };
 } catch (err) {}
