@@ -98,7 +98,9 @@ By following [madduck's guide][xkb], I created my own XKB rules.
 1. Download this archive: [altfin.tar.gz](files/altfin.tar.gz)
 2. Unpack the archive to your home directory.
 3. Place the `loadaltfin` any place you want and make it executable
-   `chmod +x /path/to/loadaltfin`
+
+        chmod +x /path/to/loadaltfin
+
 4. Make sure you run `loadaltfin` every time you login.
 
 If you change the keyboard layout or it somehow resets to some other layout,

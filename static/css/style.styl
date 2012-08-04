@@ -3,7 +3,7 @@ fg_color = #888
 h_bg_color = #335
 h_fg_color = #fff
 h_border_color = h_bg_color
-c_bg_color = #fff
+c_bg_color = #f8f8f8
 c_fg_color = #444
 c_border_color = #ccc
 f_bg_color = bg_color
@@ -12,10 +12,13 @@ l_fg_color = #d14
 l_bg_color = transparent
 l_hover_bg_color = l_fg_color
 l_hover_fg_color = #fff
-code_bg = #e5e5e5
-code_border = #d0d0d0
+code_bg = #e5e5ef
+code_border = #ddd
 code_block_border = #35a
-area_width = 45em
+area_width = 46em
+font_serif = "PT Serif", Georgia, Times, "Times New Roman", serif
+font_sans_serif = Arial, "Helvetica Neue", Helvetica, sans-serif
+font_monospace = "Lucida Console", "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace
 
 border-radius()
   -webkit-border-radius arguments
@@ -45,16 +48,23 @@ pre
   margin 1em 1em
   padding 0.2em 0.2em
   border-left 4px solid code_block_border
+  background-color code_bg
+  overflow-x auto
+  font-family font_monospace
+  font-size 0.9em
 
 code
-  background-color code_bg
   border 1px solid code_border
+  background-color #fff
   border-radius 2px
   padding 0 0.4em
+  font-family font_monospace
+  font-size 0.8em
 
 pre code
   background-color transparent
   border 0px solid code_border
+  font-size 0.9em
 
 a
   color l_fg_color
@@ -93,6 +103,7 @@ a
   padding 0.3em 2em 0.3em 2em
   text-align right
   margin 0
+  font-family font_sans_serif
 
 @media (min-width: 481px)
   #head
@@ -104,6 +115,7 @@ a
   margin 0
   border 1px solid c_border_color
   border-top 0
+  font-family font_sans_serif
 
 @media (min-width: 481px)
   #content
